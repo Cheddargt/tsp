@@ -130,7 +130,7 @@ int main (int argc, char *argv[]) {
 
     for (int i = 0; i < G.size(); i++)
     {
-        cout << (G[i].topo)->x << ' ' << (G[i].topo)->y << endl;
+        //cout << (G[i].topo)->x << ' ' << (G[i].topo)->y << endl;
     }
 
 
@@ -147,18 +147,18 @@ int main (int argc, char *argv[]) {
     }
 
     // imprimir
-
+    /*
     for (int i = 0; i < G.size(); i++)
     {
         vertice* v = G[i].topo;
         for (int j = 0; j < G.size(); j++)
         {
-            cout << "x: " << v->x << " y: " << v->y << " custo: " << v->custo << endl;
+            //cout << "x: " << v->x << " y: " << v->y << " custo: " << v->custo << endl;
             v = v->prox;
         }
-        cout << endl;
+        //cout << endl;
     }
-
+    */
 
     // gerar T
     vector<Lista> T;
@@ -169,7 +169,7 @@ int main (int argc, char *argv[]) {
     int visitados = 0;
 
     // enquanto todos não forem visitados e adicionados à matriz de visitados
-    while (visitados < num_pontos-1)
+    while (visitados < num_pontos)
     {
         double menor_custo = 9999999999999999999;
         vertice* v = new vertice; // vértice a ser guardado
@@ -179,6 +179,7 @@ int main (int argc, char *argv[]) {
         // verificar todas as arestas disponíveis
         for (int i = 0; i < num_pontos; i++)
         {
+            cout << G[i].topo->x << " " << G[i].topo->y << " " << G[i].topo->visitado << endl;
             aux = G[i].topo; // sempre começar do primeiro
             for (int j = 0; j < num_pontos; j++)
             {
@@ -199,7 +200,6 @@ int main (int argc, char *argv[]) {
             }
         }
         v->visitado = true;
-        cout << "x: " << v->x << " y: " << v->y << " visitado." << endl;
         vertice* u = new vertice;
         copiar_vertice(v, u);
         Lista lista(u);
