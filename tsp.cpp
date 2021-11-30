@@ -13,17 +13,19 @@ struct vertice
     double x, y;
     bool visitado;
     double custo;
+    vertice *ant;
     vertice *prox;
+    int posicao;
 };
 
 //Função que calcula a distância eucliana entre dois pontos
-double calcular_distancia(vertice* u, vertice* v)
+double calcular_distancia(vertice u, vertice v)
 {
     double d;
-    d = sqrt(pow((u->x - v->x),2)+pow((u->y - v->y),2));
+    d = sqrt(pow((u.x - v.x),2)+pow((u.y - v.y),2));
     return(d);
 }
-
+/*
 class Lista
 {
 
@@ -68,6 +70,7 @@ public:
     ~Lista() {};
 
 };
+*/
 
 copiar_vertice(vertice* v, vertice* u)
 {
@@ -108,35 +111,37 @@ int main (int argc, char *argv[]) {
 
     fscanf(in, "%d", &num_pontos);
 
-    vector<Lista> G;
+    vector<vertice> G;
 
+    // grava os pontos em G
     for (int i = 0; i < num_pontos; i++)
     {
-        vertice *v = new vertice;
+        vertice v;
         double x, y;
         fscanf(in, "%lf %lf", &x, &y);
         //cout << "x: " << x << " y: " << y << endl;
-        v->x = x;
-        v->y = y;
-        v->custo = 0;
-        v->visitado = false;
-        v->prox = nullptr;
-        Lista lista(v);
-        G.push_back(lista);
+        v.x = x;
+        v.y = y;
+        v.custo = 0;
+        v.visitado = false;
+        v.prox = nullptr;
+        G.push_back(v);
     }
 
     //Fechar o arquivo
     fclose(in);
 
+    /*
     for (int i = 0; i < G.size(); i++)
     {
-        //cout << (G[i].topo)->x << ' ' << (G[i].topo)->y << endl;
+        cout << (G[i].topo)->x << ' ' << (G[i].topo)->y << endl;
     }
+    */
 
 
     // Preencher as listas de G calculando o custo de G[i] até cada um
     // Criar o grafo completo
-    for (int i = 0; i < G.size(); i++)
+    /*for (int i = 0; i < G.size(); i++)
     {
         for (int j = 0; j < G.size(); j++)
         {
@@ -144,7 +149,7 @@ int main (int argc, char *argv[]) {
                 G[i].AdicionaFim(G[j].topo);
             }
         }
-    }
+    }*/
 
     // imprimir
     /*
@@ -161,9 +166,9 @@ int main (int argc, char *argv[]) {
     */
 
     // gerar T
-    vector<Lista> T;
+    vector<vertice> T;
 
-    G[0].topo->visitado = true;
+    G[0].visitado = true;
     T.push_back(G[0]);
 
     int visitados = 0;
@@ -172,38 +177,34 @@ int main (int argc, char *argv[]) {
     while (visitados < num_pontos)
     {
         double menor_custo = 9999999999999999999;
-        vertice* v = new vertice; // vértice a ser guardado
-        vertice* aux = new vertice; // vértice "identador"
-        aux = G[0].topo;
+        int closest_vertice = -1;
 
         // verificar todas as arestas disponíveis
         for (int i = 0; i < num_pontos; i++)
         {
-            cout << G[i].topo->x << " " << G[i].topo->y << " " << G[i].topo->visitado << endl;
-            aux = G[i].topo; // sempre começar do primeiro
             for (int j = 0; j < num_pontos; j++)
             {
-                if (!aux->visitado)
+                if (i != j && G[j].visitado == false)
                 {
-                    if (aux->custo != 0)
+                    double dist = calcular_distancia(G[i], G[j]);
+                    if (dist < menor_custo)
                     {
-                        if (aux->custo < menor_custo)
-                        {
-                            menor_custo = aux->custo;
-                            v = aux;
-                        }
+                        menor_custo = dist;
+                        closest_vertice = j;
                     }
-                }
-                if (aux->prox != nullptr) {
-                    aux = aux->prox;
                 }
             }
         }
-        v->visitado = true;
-        vertice* u = new vertice;
-        copiar_vertice(v, u);
-        Lista lista(u);
-        T.push_back(lista);
+
+        if (closest_vertice != -1)
+        {
+            G[closest_vertice].visitado = true;
+            // struct aresta
+            // G[i], G[closest_vertice], menor_custo
+            vertice v = G[closest_vertice];
+            T.push_back(v);
+        }
+
         visitados++;
     }
 
@@ -212,7 +213,7 @@ int main (int argc, char *argv[]) {
     // imprimir
     for (int i = 0; i < T.size(); i++)
     {
-        cout << "[" << i << "] " << "x: " << T[i].topo->x << " y: " << T[i].topo->y << " custo: " << T[i].topo->custo << endl;
+        cout << "[" << i << "] " << "x: " << T[i].x << " y: " << T[i].y << " custo: " << T[i].custo << endl;
     }
 
 
