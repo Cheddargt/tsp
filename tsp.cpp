@@ -6,25 +6,27 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <limits.h>
+
 using namespace std;
+
 
 struct vertice
 {
     double x, y;
     bool visitado;
     double custo;
-    vertice *ant;
-    vertice *prox;
-    int posicao;
+    int ant;
 };
 
-//Função que calcula a distância eucliana entre dois pontos
+//Funï¿½ï¿½o que calcula a distï¿½ncia eucliana entre dois pontos
 double calcular_distancia(vertice u, vertice v)
 {
     double d;
     d = sqrt(pow((u.x - v.x),2)+pow((u.y - v.y),2));
     return(d);
 }
+
 /*
 class Lista
 {
@@ -61,7 +63,7 @@ public:
         topo = nullptr;
         fim = topo;
     }
-    Lista(vertice* v) // Construtora c parâmetro
+    Lista(vertice* v) // Construtora c parï¿½metro
     {
         // CHECAR
         topo = v;
@@ -72,14 +74,15 @@ public:
 };
 */
 
-copiar_vertice(vertice* v, vertice* u)
+/*
+void copiar_vertice(vertice* v, vertice* u)
 {
     u->x = v->x,
     u->y = v->y;
     u->visitado = v->visitado;
     u->custo = v->custo;
     u->prox = v->prox;
-}
+}*/
 
 
 
@@ -93,11 +96,11 @@ int main (int argc, char *argv[]) {
 */
 
     /*
-    //Start no tempo de execução
+    //Start no tempo de execuï¿½ï¿½o
     clock_t start_tsp, end_tsp;
     float cpu_time_clo;
 
-    //Inicia o tempo de execução
+    //Inicia o tempo de execuï¿½ï¿½o
     start_tsp = clock();
     */
 
@@ -122,9 +125,9 @@ int main (int argc, char *argv[]) {
         //cout << "x: " << x << " y: " << y << endl;
         v.x = x;
         v.y = y;
-        v.custo = 0;
+        v.custo = INT_MAX;
         v.visitado = false;
-        v.prox = nullptr;
+        v.ant = 0;
         G.push_back(v);
     }
 
@@ -139,7 +142,7 @@ int main (int argc, char *argv[]) {
     */
 
 
-    // Preencher as listas de G calculando o custo de G[i] até cada um
+    // Preencher as listas de G calculando o custo de G[i] atï¿½ cada um
     // Criar o grafo completo
     /*for (int i = 0; i < G.size(); i++)
     {
@@ -165,50 +168,48 @@ int main (int argc, char *argv[]) {
     }
     */
 
-    // gerar T
+    //COMEï¿½O DO PRIM
     vector<vertice> T;
-
-    G[0].visitado = true;
-    T.push_back(G[0]);
-
+    G[0].custo = 0;
     int visitados = 0;
 
-    // enquanto todos não forem visitados e adicionados à matriz de visitados
     while (visitados < num_pontos)
     {
-        double menor_custo = 9999999999999999999;
+        double menor_custo = INT_MAX;
         int closest_vertice = -1;
+        int u;
 
-        // verificar todas as arestas disponíveis
-        for (int i = 0; i < num_pontos; i++)
+        for(int i=0; i<num_pontos;i++)
         {
-            for (int j = 0; j < num_pontos; j++)
+            if(G[i].custo < menor_custo && G[i].visitado == false)
             {
-                if (i != j && G[j].visitado == false)
-                {
-                    double dist = calcular_distancia(G[i], G[j]);
-                    if (dist < menor_custo)
-                    {
-                        menor_custo = dist;
-                        closest_vertice = j;
-                    }
-                }
+                u = i;
+                menor_custo = G[i].custo;
             }
         }
 
-        if (closest_vertice != -1)
-        {
-            G[closest_vertice].visitado = true;
-            // struct aresta
-            // G[i], G[closest_vertice], menor_custo
-            vertice v = G[closest_vertice];
-            T.push_back(v);
-        }
+        G[u].visitado = true;
+        T.push_back(G[u]);
 
+        for(int v=0; v<num_pontos; v++)
+        {
+            double dist = calcular_distancia(G[u], G[v]);
+            if (dist < G[v].custo)
+            {
+                G[v].custo = dist;
+                G[v].ant = u;
+            }
+        }
         visitados++;
     }
 
+    //A arvore do prim estÃ¡ sem as arestas ainda, tem que arrumar um jeito de fazer as aresta pra fazer a busca em profundidade
 
+    //Busca em profundidade
+
+    //Agora tem que fazer uma Heap com o T
+
+    
 
     // imprimir
     for (int i = 0; i < T.size(); i++)
@@ -220,7 +221,7 @@ int main (int argc, char *argv[]) {
 
     /* -------------------------------------------------------------------- */
 
-    //Parar tempo de execução
+    //Parar tempo de execuï¿½ï¿½o
     /*
     end_tsp = clock();
     cpu_time_clo = ((float) (end_tsp - start_tsp)) / CLOCKS_PER_SEC;
