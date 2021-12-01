@@ -39,72 +39,13 @@ struct vertice
     vector <vertice> conexoes;
 };
 
-//Fun��o que calcula a dist�ncia eucliana entre dois pontos
+//Funções que calcula a distância eucliana entre dois pontos
 double calcular_distancia(vertice u, vertice v)
 {
     double d;
     d = sqrt(pow((u.x - v.x),2)+pow((u.y - v.y),2));
     return(d);
 }
-
-/*
-class Lista
-{
-
-public:
-    vertice* topo;
-    vertice* fim;
-    void RemoveInicio();
-    void RemoveFim();
-    AdicionaFim(vertice* novo)
-    {
-        vertice* v = new vertice;
-        v->x = novo->x;
-        v->y = novo->y;
-        v->visitado = novo->visitado;
-        v->custo = novo->custo;
-        v->prox = nullptr; //inicializada
-
-        if (topo == nullptr)
-        {
-            // v->ant = nullptr;
-            topo = v;
-            fim = v;
-        }
-        else
-        {
-            fim->prox = v;
-            fim = v;
-            v->custo = calcular_distancia(topo, novo);
-        }
-    }
-    Lista () //Construtora
-    {
-        topo = nullptr;
-        fim = topo;
-    }
-    Lista(vertice* v) // Construtora c par�metro
-    {
-        // CHECAR
-        topo = v;
-        fim = topo;
-    }
-    ~Lista() {};
-
-};
-*/
-
-/*
-void copiar_vertice(vertice* v, vertice* u)
-{
-    u->x = v->x,
-    u->y = v->y;
-    u->visitado = v->visitado;
-    u->custo = v->custo;
-    u->prox = v->prox;
-}*/
-
-
 
 int main () {
 
@@ -119,7 +60,7 @@ int main () {
     clock_t start_tsp, end_tsp;
     float cpu_time_clo;
 
-    //Inicia o tempo de execu��o
+    //Inicia o tempo de execução
     start_tsp = clock();
 
 
@@ -127,7 +68,7 @@ int main () {
     //FILE *in=fopen(argv[1],"r");
 
     /* PARA DEBUG */
-    FILE *in=fopen("input4.txt","r");
+    FILE *in=fopen("input.txt","r");
 
     int num_pontos = 0;
 
@@ -248,20 +189,37 @@ int main () {
 
     //A arvore do prim está sem as arestas ainda, tem que arrumar um jeito de fazer as aresta pra fazer a busca em profundidade
 
+    FILE *tree = fopen("tree.txt", "w");
     for (int i = num_pontos-1; i >= 0; i--)
     {
         if (T[i].ant != -1)
         {
             (T[T[i].ant].adjs).push_back(i);
+            fprintf(tree, "%.0lf %.0lf\n", T[T[i].ant].x, T[T[i].ant].y);
             (T[i].adjs).push_back(T[i].ant);
+            fprintf(tree, "%.0lf %.0lf\n", T[i].x, T[i].y);
+            //TO-DO: APAGAR ESTA LINHA \/
+            fprintf(tree, "\n");
         }
 
     }
 
+    /*FILE *tree = fopen("tree.txt", "w");
+    for(int i=0; i<num_pontos;i++)
+    {
+        for(int j=0; j<T[j].adjs.size(); j++)
+        {
+            fprintf(tree, "adjs: %d\n", T[j].adjs.size());
+            fprintf(tree, "%.0lf %.0lf\n", T[i].x, T[i].y);
+            fprintf(tree, "%.0lf %.0lf\n", T[T[i].adjs[j]].x, T[T[i].adjs[j]].y);
+        }
+    }
+    fclose(tree);*/
+
     vector<vertice> V;
-
-
     // busca em profundidade
+    //FILE *tree = fopen("tree.txt", "w");
+
     for (int i = 0; i < T.size(); i++)
     {
         if (i == 0)
@@ -278,9 +236,16 @@ int main () {
             {
                 T[T[i].adjs[j]].visitado = false;
                 V.push_back(T[T[i].adjs[j]]);
+                //if(i != 0)
+                //{
+                 //   fprintf(tree, "%.0lf %.0lf\n", T[T[j].ant].x, T[T[j].ant].y);
+                //    fprintf(tree, "%.0lf %.0lf\n", T[j].x, T[j].y);
+               // }
+
             }
         }
     }
+    //fclose(tree);
 
     // imprimir
 
@@ -341,6 +306,28 @@ int main () {
     cout << cpu_time_clo << " " << custo_ciclo << endl;
 
     //Agora temos que salvar a AGM chamada
+    /*FILE *tree = fopen("tree.txt", "w");
+    for(int i=0; i<num_pontos;i++)
+    {
+        for(int j=0; j<T[j].adjs.size(); j++)
+        {
+            fprintf(tree, "adjs: %d\n", T[j].adjs.size());
+            fprintf(tree, "%.0lf %.0lf\n", T[i].x, T[i].y);
+            fprintf(tree, "%.0lf %.0lf\n", T[T[i].adjs[j]].x, T[T[i].adjs[j]].y);
+        }
+    }
+
+    fclose(tree);*/
+
+    //Agora salva o ciclo
+    FILE *cycle = fopen("cycle.txt", "w");
+    for(int i = 0; i < num_pontos; i++)
+    {
+        fprintf(cycle, "%.0lf %.0lf\n", V[i].x, V[i].y);
+    }
+    fprintf(cycle, "%.0lf %.0lf\n", V[0].x, V[0].y);
+
+    fclose(cycle);
 
     return 0;
 }
