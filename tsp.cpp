@@ -17,6 +17,8 @@ struct vertice
     bool visitado;
     double custo;
     int ant;
+    vector <int> adjs;
+    vector <vertice> conexoes;
 };
 
 //Fun��o que calcula a dist�ncia eucliana entre dois pontos
@@ -128,6 +130,7 @@ int main (int argc, char *argv[]) {
         v.custo = INT_MAX;
         v.visitado = false;
         v.ant = -1;
+        //v.adjs.push_back();
         G.push_back(v);
     }
 
@@ -195,6 +198,11 @@ int main (int argc, char *argv[]) {
         //}
 
         G[u].visitado = true;
+        //if (u != 0)
+        //{
+        //    T[T[u].ant].adjs.push_back(u);
+
+        //}
         cout << G[u].x << " " << G[u].y << " visitado. último u: " << G[u].ant << endl;
         T.push_back(G[u]);
 
@@ -212,6 +220,7 @@ int main (int argc, char *argv[]) {
                 } else
                 {
                     G[i].ant = num_pontos - u;
+                    //G[G[i].ant].adjs.push_back(i);
                 }
 
             }
@@ -222,19 +231,67 @@ int main (int argc, char *argv[]) {
 
     //A arvore do prim está sem as arestas ainda, tem que arrumar um jeito de fazer as aresta pra fazer a busca em profundidade
 
-    //Busca em profundidade
+    for (int i = num_pontos-1; i >= 0; i--)
+    {
+        if (T[i].ant != -1)
+        {
+            (T[T[i].ant].adjs).push_back(i);
+            (T[i].adjs).push_back(T[i].ant);
+        }
 
-    //Agora tem que fazer uma Heap com o T
+    }
+
+    vector<vertice> V;
 
 
+    // busca em profundidade
+    for (int i = 0; i < T.size(); i++)
+    {
+        if (i == 0)
+        {
+            T[i].visitado = false;
+            V.push_back(T[i]);
+            V[i].ant = -1;
+        }
+
+        for (int j = 0; j < T[i].adjs.size(); j++)
+        {
+            // fingir que true == false pra visitar os visitados, "desvisitando" eles
+            if (T[T[i].adjs[j]].visitado == true) // visita
+            {
+                T[T[i].adjs[j]].visitado = false;
+                V.push_back(T[T[i].adjs[j]]);
+            }
+        }
+    }
 
     // imprimir
+
     for (int i = 0; i < T.size(); i++)
     {
         cout << "[" << i << "] " << "x: " << T[i].x << " y: " << T[i].y << " custo: " << T[i].custo << " ant: "<< T[i].ant << endl;
+        cout << "adjs: ";
+
+        for (int j = 0; j < T[i].adjs.size(); j++)
+        {
+            cout << T[i].adjs[j] << " ";
+        }
+
+        cout << endl;
+    }
+
+    // imprimir
+
+    for (int i = 0; i < V.size(); i++)
+    {
+        cout << "[" << i << "] " << "x: " << V[i].x << " y: " << V[i].y << " custo: " << V[i].custo << " ant: "<< V[i].ant << endl;
     }
 
 
+
+
+
+/*
     for (int i = num_pontos; i >= 0; i--)
     {
         cout << "" << endl;
@@ -245,7 +302,7 @@ int main (int argc, char *argv[]) {
         cout << endl;
     }
 
-
+*/
 
 
 
