@@ -127,7 +127,7 @@ int main (int argc, char *argv[]) {
         v.y = y;
         v.custo = INT_MAX;
         v.visitado = false;
-        v.ant = 0;
+        v.ant = -1;
         G.push_back(v);
     }
 
@@ -179,6 +179,7 @@ int main (int argc, char *argv[]) {
         int closest_vertice = -1;
         int u;
 
+
         for(int i=0; i<num_pontos;i++)
         {
             if(G[i].custo < menor_custo && G[i].visitado == false)
@@ -188,18 +189,34 @@ int main (int argc, char *argv[]) {
             }
         }
 
+        //if (G[u].custo > 0)
+        //{
+        //    G[u].ant = v;
+        //}
+
         G[u].visitado = true;
+        cout << G[u].x << " " << G[u].y << " visitado. último u: " << G[u].ant << endl;
         T.push_back(G[u]);
 
-        for(int v=0; v<num_pontos; v++)
+
+        // atualiza as distâncias referente ao G[u] atual, apenas as menores
+        for(int i=0; i<num_pontos; i++)
         {
-            double dist = calcular_distancia(G[u], G[v]);
-            if (dist < G[v].custo)
+            double dist = calcular_distancia(G[u], G[i]);
+            if (dist < G[i].custo)
             {
-                G[v].custo = dist;
-                G[v].ant = u;
+                G[i].custo = dist;
+                if (u == 0)
+                {
+                    G[i].ant = 0;
+                } else
+                {
+                    G[i].ant = num_pontos - u;
+                }
+
             }
         }
+
         visitados++;
     }
 
@@ -209,13 +226,26 @@ int main (int argc, char *argv[]) {
 
     //Agora tem que fazer uma Heap com o T
 
-    
+
 
     // imprimir
     for (int i = 0; i < T.size(); i++)
     {
-        cout << "[" << i << "] " << "x: " << T[i].x << " y: " << T[i].y << " custo: " << T[i].custo << endl;
+        cout << "[" << i << "] " << "x: " << T[i].x << " y: " << T[i].y << " custo: " << T[i].custo << " ant: "<< T[i].ant << endl;
     }
+
+
+    for (int i = num_pontos; i >= 0; i--)
+    {
+        cout << "" << endl;
+        cout << T[i].x << " " << T[i].y << endl;
+        if (i != 0){
+        cout << T[T[i].ant].x << " " << T[T[i].ant].y << endl;
+        }
+        cout << endl;
+    }
+
+
 
 
 
