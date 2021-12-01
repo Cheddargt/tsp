@@ -3,13 +3,31 @@
 /* IANCA POLIZELO - RA: 1985388 */
 /* VITOR GABRIEL ANDRADE TEIXEIRA - RA: 1655655 */
 
+/*
+    |Este código irá calcular uma aproximação para o problema do caixeiro viajante, em que temos que passar por todos os vértices em um grafo, sem repetí-los, e voltar para o vértice inicial pelo menor caminho possível.
+    |Chegar a um custo exato é inviável computacionalmente falando, então se faz necessário abrir mão da exatidão para ganhar em performance.
+    |
+    |Inicialmente recebemos um conjunto de pontos, que serão os vértices, e devemos realizar 3 passos:
+    |1) Computar um grafo completo, ou seja, todos os vértices tem arestas para todos os outros vértices.
+    |2) Construir a árvore geradora mínima para este grafo através do algoritmo de Prim.
+    |3) Fazer uma busca em profundidade, começando do mesmo vértice iniciado no algoritmo Prim.
+    |Por último, então, calculamos os custos de um vértice para outro seguindo a ordem encontrada na busca em profundidade.
+    |
+    |Para que o nosso código ficasse ainda mais eficiente, eliminação a criação do grafo completo explicito, pois, como sabemos que um vértice tem aresta para todos os demais, podemos começar direto do Prim já com isso em mente.
+*/
+
 #include <iostream>
 #include <vector>
 #include <math.h>
 #include <limits.h>
+#include <time.h>
 
 using namespace std;
 
+
+/*Aqui é a estrutura utilizada para representar noss vértice:
+    |x, y: coordenadas do ponto
+    |*/
 
 struct vertice
 {
@@ -89,28 +107,27 @@ void copiar_vertice(vertice* v, vertice* u)
 
 
 int main () {
-/*
-int main (int argc, char *argv[]) {
+
+/*int main (int argc, char *argv[]) {
     if (argc != 2) {
         printf("Erro ao ler o arquivo\n");
         return 0;
-    }
-*/
+    }*/
 
-    /*
-    //Start no tempo de execu��o
+
+    //Start no tempo de execução
     clock_t start_tsp, end_tsp;
     float cpu_time_clo;
 
     //Inicia o tempo de execu��o
     start_tsp = clock();
-    */
+
 
     //Abrir o arquivo
     //FILE *in=fopen(argv[1],"r");
 
     /* PARA DEBUG */
-    FILE *in=fopen("input.txt","r");
+    FILE *in=fopen("input4.txt","r");
 
     int num_pontos = 0;
 
@@ -203,7 +220,7 @@ int main (int argc, char *argv[]) {
         //    T[T[u].ant].adjs.push_back(u);
 
         //}
-        cout << G[u].x << " " << G[u].y << " visitado. último u: " << G[u].ant << endl;
+        //cout << G[u].x << " " << G[u].y << " visitado. ultimo u: " << G[u].ant << endl;
         T.push_back(G[u]);
 
 
@@ -267,6 +284,7 @@ int main (int argc, char *argv[]) {
 
     // imprimir
 
+    /*
     for (int i = 0; i < T.size(); i++)
     {
         cout << "[" << i << "] " << "x: " << T[i].x << " y: " << T[i].y << " custo: " << T[i].custo << " ant: "<< T[i].ant << endl;
@@ -278,18 +296,25 @@ int main (int argc, char *argv[]) {
         }
 
         cout << endl;
-    }
+    }*/
 
     // imprimir
 
+    /*
     for (int i = 0; i < V.size(); i++)
     {
         cout << "[" << i << "] " << "x: " << V[i].x << " y: " << V[i].y << " custo: " << V[i].custo << " ant: "<< V[i].ant << endl;
     }
+    */
 
 
-
-
+    double custo_ciclo = 0;
+    //Agora vamos calcular o custo do ciclo
+    for(int i = 0; i < num_pontos-1; i++)
+    {
+        custo_ciclo = custo_ciclo + calcular_distancia(V[i], V[i+1]);
+    }
+    custo_ciclo = custo_ciclo + calcular_distancia(V[num_pontos-1], V[0]);
 
 /*
     for (int i = num_pontos; i >= 0; i--)
@@ -309,10 +334,13 @@ int main (int argc, char *argv[]) {
     /* -------------------------------------------------------------------- */
 
     //Parar tempo de execu��o
-    /*
+
     end_tsp = clock();
     cpu_time_clo = ((float) (end_tsp - start_tsp)) / CLOCKS_PER_SEC;
-    */
+
+    cout << cpu_time_clo << " " << custo_ciclo << endl;
+
+    //Agora temos que salvar a AGM chamada
 
     return 0;
 }
