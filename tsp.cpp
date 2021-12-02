@@ -27,8 +27,13 @@ using namespace std;
 
 /*Aqui é a estrutura utilizada para representar noss vértice:
     |x, y: coordenadas do ponto
-    |*/
+    |visitado: uma flag que sabermos se já passamos por ess vértice
+    |custo: distância entre o vértice e o adjacente dele
+    |ant: guarda o adjacente que foi visitado antes dele
+    |adjs: é um vetor com todos os vértices adjacentes ao vértice em questão
 
+    Essa struct será usada em vetores para montar o grafo
+*/
 struct vertice
 {
     double x, y;
@@ -36,10 +41,12 @@ struct vertice
     double custo;
     int ant;
     vector <int> adjs;
-    vector <vertice> conexoes;
 };
-
-//Funções que calcula a distância eucliana entre dois pontos
+/*
+Função para calcular a distância eucliana entre dois pontos, que será o custo
+ |Entradas: dois vértices para o cálculo
+ |Saída: retorna a distância entre os dois pontos
+*/
 double calcular_distancia(vertice u, vertice v)
 {
     double d;
@@ -47,36 +54,34 @@ double calcular_distancia(vertice u, vertice v)
     return(d);
 }
 
-int main () {
 
-/*int main (int argc, char *argv[]) {
+int main (int argc, char *argv[]) {
     if (argc != 2) {
         printf("Erro ao ler o arquivo\n");
         return 0;
-    }*/
+    }
 
 
     //Start no tempo de execução
     clock_t start_tsp, end_tsp;
     float cpu_time_clo;
-
-    //Inicia o tempo de execução
     start_tsp = clock();
 
 
     //Abrir o arquivo
-    //FILE *in=fopen(argv[1],"r");
+    FILE *in=fopen(argv[1],"r");
 
     /* PARA DEBUG */
-    FILE *in=fopen("input.txt","r");
+    //FILE *in=fopen("input.txt","r");
 
+    //Aqui iremos ler o arquivo em txt e gravar em um vector de vértices
+    // Iniciamos os custos com infinito, pois no algoritmo de Prim devemos selecionar o melhor em comparações aos depois
     int num_pontos = 0;
 
     fscanf(in, "%d", &num_pontos);
 
-    vector<vertice> G;
+    vector<vertice> G; //O vetor G é o nosso grafo
 
-    // grava os pontos em G
     for (int i = 0; i < num_pontos; i++)
     {
         vertice v;
@@ -95,41 +100,19 @@ int main () {
     //Fechar o arquivo
     fclose(in);
 
-    /*
-    for (int i = 0; i < G.size(); i++)
-    {
-        cout << (G[i].topo)->x << ' ' << (G[i].topo)->y << endl;
-    }
+
+
+    //ALGORITMO DO PRIM:
+
+    /*O primeiro passo é fazer a nossa escolha gulosa de vértice para começar
+      |Escolha gulosa: primeiro vértice no vetor de vértices, ou seja, vértice com índice 0
+      | iniciamos o custo dele como zero, pois será o que irá comparar com os demais
+      |
+      |T: Árvore Geradora Mínima
+      |Visitados: será nosso iterador do while do Prim, pois quando todos já tiverem sido visitados, então acabou os vértices
+      |menor_custo: guarda a aresta com melhor custo daquele vértice.
+      |u: guarda o índice em que o vértice de menor custo foi achado no vetor G(grafo)
     */
-
-
-    // Preencher as listas de G calculando o custo de G[i] at� cada um
-    // Criar o grafo completo
-    /*for (int i = 0; i < G.size(); i++)
-    {
-        for (int j = 0; j < G.size(); j++)
-        {
-            if (i != j) {
-                G[i].AdicionaFim(G[j].topo);
-            }
-        }
-    }*/
-
-    // imprimir
-    /*
-    for (int i = 0; i < G.size(); i++)
-    {
-        vertice* v = G[i].topo;
-        for (int j = 0; j < G.size(); j++)
-        {
-            //cout << "x: " << v->x << " y: " << v->y << " custo: " << v->custo << endl;
-            v = v->prox;
-        }
-        //cout << endl;
-    }
-    */
-
-    //COME�O DO PRIM
     vector<vertice> T;
     G[0].custo = 0;
     int visitados = 0;
@@ -137,10 +120,16 @@ int main () {
     while (visitados < num_pontos)
     {
         double menor_custo = INT_MAX;
-        int closest_vertice = -1;
         int u;
 
-
+        /*
+        |Aqui, iremos comparar o custo do vértice i com todos os demais e pegar o menor.
+        |Importante: Como já sabemos que grafo tem que ser completo, então a verificação
+        |das distâncias do vértice i deve ser feita com todos os demais.
+        |isso é uma característica do problema do caxeiro viajante. Se
+        |fosse outro problema, não é garantido o fato de ser um grafo completo,
+        |então a comparação deveria ser feita apenas com os adjacentes.
+        */
         for(int i=0; i<num_pontos;i++)
         {
             if(G[i].custo < menor_custo && G[i].visitado == false)
@@ -150,22 +139,13 @@ int main () {
             }
         }
 
-        //if (G[u].custo > 0)
-        //{
-        //    G[u].ant = v;
-        //}
-
+        //Então, quando achamos o menor custo, adicionamos esse vértice na árvore T e marcamos o vértice como visitado.
         G[u].visitado = true;
-        //if (u != 0)
-        //{
-        //    T[T[u].ant].adjs.push_back(u);
-
-        //}
-        //cout << G[u].x << " " << G[u].y << " visitado. ultimo u: " << G[u].ant << endl;
         T.push_back(G[u]);
 
 
-        // atualiza as distâncias referente ao G[u] atual, apenas as menores
+        // Atualizamos os custos dos vértices adjacentes ao vértice que foi adicionado na árvore T
+        //Também salvamos aqui o vértice anteriormente visitado.
         for(int i=0; i<num_pontos; i++)
         {
             double dist = calcular_distancia(G[u], G[i]);
@@ -178,7 +158,6 @@ int main () {
                 } else
                 {
                     G[i].ant = num_pontos - u;
-                    //G[G[i].ant].adjs.push_back(i);
                 }
 
             }
@@ -187,7 +166,13 @@ int main () {
         visitados++;
     }
 
-    //A arvore do prim está sem as arestas ainda, tem que arrumar um jeito de fazer as aresta pra fazer a busca em profundidade
+    /*
+    | Durante o algoritmo do Prim, fomos apenas salvando o vértice anterior, logo, do modo como a estrutura está, não conseguiremos fazer a busca em profundidade
+    | Então, percorremos a árvore T de trás para frente, verificamos qual é o anterior do vértice i e adicionamos o vértice i no vetor de adjacentes do vértice anterior ao i.
+    | Assim, conseguimos montar a árvore com suas aresta devidamente guardadas.
+    |
+    | Aproveitamos esse momento também para gravar a AGM em um arquivo tree.txt que é uma dos requisitos do trabalho
+    */
 
     FILE *tree = fopen("tree.txt", "w");
     for (int i = num_pontos-1; i >= 0; i--)
@@ -199,26 +184,27 @@ int main () {
             (T[i].adjs).push_back(T[i].ant);
             fprintf(tree, "%.0lf %.0lf\n", T[i].x, T[i].y);
             //TO-DO: APAGAR ESTA LINHA \/
-            fprintf(tree, "\n");
+            //fprintf(tree, "\n");
         }
 
     }
 
-    /*FILE *tree = fopen("tree.txt", "w");
-    for(int i=0; i<num_pontos;i++)
-    {
-        for(int j=0; j<T[j].adjs.size(); j++)
-        {
-            fprintf(tree, "adjs: %d\n", T[j].adjs.size());
-            fprintf(tree, "%.0lf %.0lf\n", T[i].x, T[i].y);
-            fprintf(tree, "%.0lf %.0lf\n", T[T[i].adjs[j]].x, T[T[i].adjs[j]].y);
-        }
-    }
-    fclose(tree);*/
 
+    //Agora iniciaremos a Busca em Profundidade
+    /*
+    | V: vetor que irá conter a ordem da busca em profundidade.
+    |
+    | Devemos começar a busca em profundidade do mesmo vértice que fizemos a escolha gulosa no algoritmo do Prim.
+    | Então, começamos salvando o primeiro vértice da árvore.
+    | Como já havíamos percorrido os vértices uma vez para a árvore, marcamos quando um vértice era visita. Agora, devemos visitar novamente,
+    | porém a flag visitado já está ativada, então, consideramos true como sendo false e false como sendo true.
+    |
+    | Depois percorremos todos os adjacentes possíveis do vértice que foi adicionado anteriormente em V. Antes chegar ao final, voltamos uma posição
+    | e percorremos os adjacentes deste novo vértice.
+    |
+    | Importante colocar que o rótulo que devemos gravar nos vértices será o índice do vetor V, ou seja, o vetor está ordenado através do rótulo.
+    */
     vector<vertice> V;
-    // busca em profundidade
-    //FILE *tree = fopen("tree.txt", "w");
 
     for (int i = 0; i < T.size(); i++)
     {
@@ -236,90 +222,40 @@ int main () {
             {
                 T[T[i].adjs[j]].visitado = false;
                 V.push_back(T[T[i].adjs[j]]);
-                //if(i != 0)
-                //{
-                 //   fprintf(tree, "%.0lf %.0lf\n", T[T[j].ant].x, T[T[j].ant].y);
-                //    fprintf(tree, "%.0lf %.0lf\n", T[j].x, T[j].y);
-               // }
-
             }
         }
     }
-    //fclose(tree);
-
-    // imprimir
-
-    /*
-    for (int i = 0; i < T.size(); i++)
-    {
-        cout << "[" << i << "] " << "x: " << T[i].x << " y: " << T[i].y << " custo: " << T[i].custo << " ant: "<< T[i].ant << endl;
-        cout << "adjs: ";
-
-        for (int j = 0; j < T[i].adjs.size(); j++)
-        {
-            cout << T[i].adjs[j] << " ";
-        }
-
-        cout << endl;
-    }*/
-
-    // imprimir
-
-    /*
-    for (int i = 0; i < V.size(); i++)
-    {
-        cout << "[" << i << "] " << "x: " << V[i].x << " y: " << V[i].y << " custo: " << V[i].custo << " ant: "<< V[i].ant << endl;
-    }
-    */
 
 
-    double custo_ciclo = 0;
     //Agora vamos calcular o custo do ciclo
+
+    /*
+    | Para calcular o custo total do ciclo, devemos calcular a distância entre os vértices seguindo a ordem
+    | estabelecida através da busca em profundidade. E ao final, também é necessário calcular a distância entre
+    | o último vértice e o primeiro, assim fechando o ciclo.
+    */
+    double custo_ciclo = 0;
+
     for(int i = 0; i < num_pontos-1; i++)
     {
         custo_ciclo = custo_ciclo + calcular_distancia(V[i], V[i+1]);
     }
     custo_ciclo = custo_ciclo + calcular_distancia(V[num_pontos-1], V[0]);
 
-/*
-    for (int i = num_pontos; i >= 0; i--)
-    {
-        cout << "" << endl;
-        cout << T[i].x << " " << T[i].y << endl;
-        if (i != 0){
-        cout << T[T[i].ant].x << " " << T[T[i].ant].y << endl;
-        }
-        cout << endl;
-    }
-
-*/
-
 
 
     /* -------------------------------------------------------------------- */
 
-    //Parar tempo de execu��o
+    //Parar tempo de execução
 
     end_tsp = clock();
     cpu_time_clo = ((float) (end_tsp - start_tsp)) / CLOCKS_PER_SEC;
 
-    cout << cpu_time_clo << " " << custo_ciclo << endl;
+    //Saída no terminal
+    printf("%.6lf %.6lf\n", cpu_time_clo, custo_ciclo);
 
-    //Agora temos que salvar a AGM chamada
-    /*FILE *tree = fopen("tree.txt", "w");
-    for(int i=0; i<num_pontos;i++)
-    {
-        for(int j=0; j<T[j].adjs.size(); j++)
-        {
-            fprintf(tree, "adjs: %d\n", T[j].adjs.size());
-            fprintf(tree, "%.0lf %.0lf\n", T[i].x, T[i].y);
-            fprintf(tree, "%.0lf %.0lf\n", T[T[i].adjs[j]].x, T[T[i].adjs[j]].y);
-        }
-    }
 
-    fclose(tree);*/
-
-    //Agora salva o ciclo
+    //Agora salvamos o arquivo cycle.txt com a ordem dos vértices que formam o ciclo final
     FILE *cycle = fopen("cycle.txt", "w");
     for(int i = 0; i < num_pontos; i++)
     {
